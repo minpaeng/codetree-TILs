@@ -2,14 +2,16 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int[][] del = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-    static int n, m, distSum;
-    static int[][] map;
+    static int[][] map, del = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    static int n, m, k, distSum;
     static Node exit;
+    static Map<Integer, Node> participents;
+    static Set<Integer>[][] positions;
+
     static class Node {
         int r;
         int c;
-        int dist;
+        int len;
 
         public Node(int r, int c) {
             this.r = r;
@@ -18,42 +20,14 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int k;
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        k = Integer.parseInt(st.nextToken());
-        map = new int[n + 1][n + 1];
-        Set<Integer>[][] positions = new Set[n + 1][n + 1];
-        for (int i = 1; i <= n; i++) {
-            st = new StringTokenizer(br.readLine());
-            for (int j = 1; j <= n; j++) {
-                positions[i][j] = new HashSet<>();
-                map[i][j] = Integer.parseInt(st.nextToken());
-            }
-        }
+        input();
 
-        Map<Integer, Node> participents = new HashMap();
-        for (int i = 1; i <= m; i++) {
-            st = new StringTokenizer(br.readLine());
-            int r, c;
-            r = Integer.parseInt(st.nextToken());
-            c = Integer.parseInt(st.nextToken());
-            positions[r][c].add(i);
-            participents.put(i, new Node(r, c));
-        }
-
-        st = new StringTokenizer(br.readLine());
-        exit = new Node(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
-
-        int idx = 1;
         while (k-- > 0) {
             // 1. 참가자 이동
-            move(positions, participents);
+            move();
 
             // 2. 참가자 탈출
-            exitParticipents(positions, participents);
+            exitParticipents();
 
             // 3. 참가자 탈출 상태 확인
             if (participents.isEmpty()) {
@@ -62,26 +36,13 @@ public class Main {
             }
 
             // 4. 맵 회전
-            rotate(positions, participents);
+            rotate();
         }
 
-        for (Node participent: participents.values()) distSum += participent.dist;
         printRes();
     }
 
-    private static void exitParticipents(Set<Integer>[][] positions, Map<Integer, Node> participents) {
-        List<Integer> finished = new ArrayList<>();
-        for (int key : participents.keySet()) {
-            Node participent = participents.get(key);
-            if (participent.r == exit.r && participent.c == exit.c) {
-                positions[participent.r][participent.c].remove(key);
-                finished.add(key);
-            }
-        }
-        for (int participent : finished) participents.remove(participent);
-    }
-
-    private static void move(Set<Integer>[][] positions, Map<Integer, Node> participents) {
+    private static void move() {
         for (int key : participents.keySet()) {
             Node participent = participents.get(key);
             int minDist = Math.abs(exit.r - participent.r) + Math.abs(exit.c - participent.c);
@@ -108,9 +69,21 @@ public class Main {
         }
     }
 
-    private static void rotate(Set<Integer>[][] positions, Map<Integer, Node> participents) {
-        Node startPosition = findStartPosition(participents);
-        int len = startPosition.dist + 1;
+    private static void exitParticipents() {
+        List<Integer> finished = new ArrayList<>();
+        for (int key : participents.keySet()) {
+            Node participent = participents.get(key);
+            if (participent.r == exit.r && participent.c == exit.c) {
+                positions[participent.r][participent.c].remove(key);
+                finished.add(key);
+            }
+        }
+        for (int participent : finished) participents.remove(participent);
+    }
+
+    private static void rotate() {
+        Node startPosition = findStartPosition();
+        int len = startPosition.len + 1;
         int r = startPosition.r;
         int c = startPosition.c;
 
@@ -165,14 +138,7 @@ public class Main {
         }
     }
 
-    private static void rotateExit(int r, int c, int toR, int toC) {
-        if (exit.r == r && exit.c == c) {
-            exit.r = toR;
-            exit.c = toC;
-        }
-    }
-
-    private static Node findStartPosition(Map<Integer, Node> participents) {
+    private static Node findStartPosition() {
         int minLen = Integer.MAX_VALUE;
         Node startPosition = new Node(n + 1, n + 1);
 
@@ -206,15 +172,52 @@ public class Main {
                         || minLen == tmpLen && startPosition.r == tmpStartPosition.r && startPosition.c > tmpStartPosition.c) {
                     minLen = tmpLen;
                     startPosition = tmpStartPosition;
-                    startPosition.dist = minLen;
+                    startPosition.len = minLen;
                 }
             }
         }
         return startPosition;
     }
 
+    private static void rotateExit(int r, int c, int toR, int toC) {
+        if (exit.r == r && exit.c == c) {
+            exit.r = toR;
+            exit.c = toC;
+        }
+    }
+
     private static void printRes() {
         System.out.println(distSum);
         System.out.println(exit.r + " " + exit.c);
+    }
+
+    private static void input() throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+        k = Integer.parseInt(st.nextToken());
+        map = new int[n + 1][n + 1];
+        positions = new Set[n + 1][n + 1];
+        for (int i = 1; i <= n; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 1; j <= n; j++) {
+                positions[i][j] = new HashSet<>();
+                map[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        participents = new HashMap<>();
+        for (int i = 1; i <= m; i++) {
+            st = new StringTokenizer(br.readLine());
+            int r, c;
+            r = Integer.parseInt(st.nextToken());
+            c = Integer.parseInt(st.nextToken());
+            positions[r][c].add(i);
+            participents.put(i, new Node(r, c));
+        }
+
+        st = new StringTokenizer(br.readLine());
+        exit = new Node(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
     }
 }
