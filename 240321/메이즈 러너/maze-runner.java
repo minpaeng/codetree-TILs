@@ -7,7 +7,6 @@ public class Main {
     static Node exit;
     static Map<Integer, Node> participents;
     static Set<Integer>[][] positions;
-
     static class Node {
         int r;
         int c;
@@ -23,19 +22,12 @@ public class Main {
         input();
 
         while (k-- > 0) {
-            // 1. 참가자 이동
             move();
-
-            // 2. 참가자 탈출
             exitParticipents();
-
-            // 3. 참가자 탈출 상태 확인
             if (participents.isEmpty()) {
                 printRes();
                 return;
             }
-
-            // 4. 맵 회전
             rotate();
         }
 
