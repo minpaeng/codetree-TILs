@@ -56,7 +56,10 @@ public class Main {
             exitParticipents(positions, participents);
 
             // 3. 참가자 탈출 상태 확인
-            if (participents.isEmpty()) printRes();
+            if (participents.isEmpty()) {
+                printRes();
+                return;
+            }
 
             // 4. 맵 회전
             rotate(positions, participents);
