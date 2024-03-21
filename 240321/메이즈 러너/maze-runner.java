@@ -38,27 +38,32 @@ public class Main {
         for (int key : participents.keySet()) {
             Node participent = participents.get(key);
             int minDist = Math.abs(exit.r - participent.r) + Math.abs(exit.c - participent.c);
-            int moveR = -1, moveC = -1;
-            for (int i = 0; i < 4; i++) {
-                int nr = participent.r + del[i][0];
-                int nc = participent.c + del[i][1];
-                if (nr <= 0 || nr > n || nc <= 0 || nc > n || map[nr][nc] != 0) continue;
-                int nDist = Math.abs(nr - exit.r) + Math.abs(nc - exit.c);
-                if (minDist > nDist) {
-                    moveR = nr;
-                    moveC = nc;
-                    minDist = nDist;
-                }
-            }
+            Node movement = makeMovement(minDist, participent);
 
-            if (moveR != -1 && map[moveR][moveC] == 0) {
+            if (movement.r != -1 && map[movement.r][movement.c] == 0) {
                 positions[participent.r][participent.c].remove(key);
-                positions[moveR][moveC].add(key);
-                participent.r = moveR;
-                participent.c = moveC;
+                positions[movement.r][movement.c].add(key);
+                participent.r = movement.r;
+                participent.c = movement.c;
                 distSum++;
             }
         }
+    }
+
+    private static Node makeMovement(int minDist, Node participent) {
+        int moveR = -1, moveC = -1;
+        for (int i = 0; i < 4; i++) {
+            int nr = participent.r + del[i][0];
+            int nc = participent.c + del[i][1];
+            if (nr <= 0 || nr > n || nc <= 0 || nc > n || map[nr][nc] != 0) continue;
+            int nDist = Math.abs(nr - exit.r) + Math.abs(nc - exit.c);
+            if (minDist > nDist) {
+                moveR = nr;
+                moveC = nc;
+                minDist = nDist;
+            }
+        }
+        return new Node(moveR, moveC);
     }
 
     private static void exitParticipents() {
@@ -138,26 +143,7 @@ public class Main {
             Node participent = participents.get(key);
             int tmpLen = Math.max(Math.abs(participent.r - exit.r), Math.abs(participent.c - exit.c));
             if (minLen >= tmpLen) {
-                Node tmpStartPosition = new Node(0, 0);
-                if (participent.r <= exit.r) {
-                    tmpStartPosition.r = exit.r - tmpLen;
-                    if (tmpStartPosition.r < 1) {
-                        tmpStartPosition.r = 1;
-                    }
-                }
-                else {
-                    tmpStartPosition.r = participent.r - tmpLen;
-                    if (tmpStartPosition.r < 1) tmpStartPosition.r = 1;
-                }
-
-                if (participent.c <= exit.c) {
-                    tmpStartPosition.c = exit.c - tmpLen;
-                    if (tmpStartPosition.c < 1) tmpStartPosition.c = 1;
-                }
-                else {
-                    tmpStartPosition.c = participent.c - tmpLen;
-                    if (tmpStartPosition.c < 1) tmpStartPosition.c = 1;
-                }
+                Node tmpStartPosition = makeStartPosition(tmpLen, participent);
 
                 if (minLen > tmpLen
                         || minLen == tmpLen && startPosition.r > tmpStartPosition.r
@@ -169,6 +155,22 @@ public class Main {
             }
         }
         return startPosition;
+    }
+
+    private static Node makeStartPosition(int len, Node participent) {
+        Node startPosition = new Node(0, 0);
+        startPosition.r = makePosition(participent.r, exit.r, len);
+        startPosition.c = makePosition(participent.c, exit.c, len);
+        return startPosition;
+    }
+
+    private static int makePosition(int p, int e, int len) {
+        int s;
+        if (p <= e) s = e - len;
+        else s = p - len;
+
+        if (s < 1) s = 1;
+        return s;
     }
 
     private static void rotateExit(int r, int c, int toR, int toC) {
