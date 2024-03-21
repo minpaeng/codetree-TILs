@@ -145,9 +145,7 @@ public class Main {
             if (minLen >= tmpLen) {
                 Node tmpStartPosition = makeStartPosition(tmpLen, participent);
 
-                if (minLen > tmpLen
-                        || minLen == tmpLen && startPosition.r > tmpStartPosition.r
-                        || minLen == tmpLen && startPosition.r == tmpStartPosition.r && startPosition.c > tmpStartPosition.c) {
+                if (checkRenew(minLen, tmpLen, startPosition, tmpStartPosition)) {
                     minLen = tmpLen;
                     startPosition = tmpStartPosition;
                     startPosition.len = minLen;
@@ -168,9 +166,15 @@ public class Main {
         int s;
         if (p <= e) s = e - len;
         else s = p - len;
-
+        
         if (s < 1) s = 1;
         return s;
+    }
+
+    private static boolean checkRenew(int minLen, int tmpLen, Node startPosition, Node tmpStartPosition) {
+        return minLen > tmpLen
+                || minLen == tmpLen && startPosition.r > tmpStartPosition.r
+                || minLen == tmpLen && startPosition.r == tmpStartPosition.r && startPosition.c > tmpStartPosition.c;
     }
 
     private static void rotateExit(int r, int c, int toR, int toC) {
