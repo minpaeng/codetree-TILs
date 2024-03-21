@@ -94,30 +94,12 @@ public class Main {
                 if (tmp > 0) tmp--;
                 Set<Integer> tmpPosition = positions[i][c];
 
-                int a = r + len - 1;
-                int b = c + i - r;
-                if (map[a][b] > 0) map[a][b]--;
-                map[i][c] = map[a][b];
-                positions[i][c] = positions[a][b];
-                rotateExit(a, b, i, c);
-
-                a = r + len - 1 - (i - r);
-                b = c + len - 1;
-                if (map[a][b] > 0) map[a][b]--;
-                map[r + len - 1][c + i - r] = map[a][b];
-                positions[r + len - 1][c + i - r] = positions[a][b];
-                rotateExit(a, b, r + len - 1, c + i - r);
-
-                a = r;
-                b = c + len - 1 - (i - r);
-                if (map[a][b] > 0) map[a][b]--;
-                map[r + len - 1 - (i - r)][c + len - 1] = map[a][b];
-                positions[r + len - 1 - (i - r)][c + len - 1] = positions[a][b];
-                rotateExit(a, b, r + len - 1 - (i - r), c + len - 1);
-
-                map[a][b] = tmp;
-                positions[a][b] = tmpPosition;
-                if (tmpExit != null) rotateExit(i, c, a, b);
+                rotateEliments(r + len - 1, c + i - r, i, c);
+                rotateEliments(r + len - 1 - (i - r), c + len - 1, r + len - 1, c + i - r);
+                rotateEliments(r, c + len - 1 - (i - r), r + len - 1 - (i - r), c + len - 1);
+                map[r][c + len - 1 - (i - r)] = tmp;
+                positions[r][c + len - 1 - (i - r)] = tmpPosition;
+                if (tmpExit != null) rotateExit(i, c, r, c + len - 1 - (i - r));
             }
 
             len -= 2;
@@ -133,6 +115,13 @@ public class Main {
                 }
             }
         }
+    }
+
+    private static void rotateEliments(int a, int b, int c, int d) {
+        if (map[a][b] > 0) map[a][b]--;
+        map[c][d] = map[a][b];
+        positions[c][d] = positions[a][b];
+        rotateExit(a, b, c, d);
     }
 
     private static Node findStartPosition() {
@@ -166,7 +155,7 @@ public class Main {
         int s;
         if (p <= e) s = e - len;
         else s = p - len;
-        
+
         if (s < 1) s = 1;
         return s;
     }
