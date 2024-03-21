@@ -108,24 +108,6 @@ public class Main {
         rotateParticipents();
     }
 
-    private static void rotateEliments(int a, int b, int c, int d) {
-        if (map[a][b] > 0) map[a][b]--;
-        map[c][d] = map[a][b];
-        positions[c][d] = positions[a][b];
-        rotateExit(a, b, c, d);
-    }
-
-    private static void rotateParticipents() {
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= n; j++) {
-                for (int num : positions[i][j]) {
-                    participents.get(num).r = i;
-                    participents.get(num).c = j;
-                }
-            }
-        }
-    }
-
     private static Node findStartPosition() {
         int minLen = Integer.MAX_VALUE;
         Node startPosition = new Node(n + 1, n + 1);
@@ -166,6 +148,24 @@ public class Main {
         return minLen > tmpLen
                 || minLen == tmpLen && startPosition.r > tmpStartPosition.r
                 || minLen == tmpLen && startPosition.r == tmpStartPosition.r && startPosition.c > tmpStartPosition.c;
+    }
+
+    private static void rotateEliments(int a, int b, int c, int d) {
+        if (map[a][b] > 0) map[a][b]--;
+        map[c][d] = map[a][b];
+        positions[c][d] = positions[a][b];
+        rotateExit(a, b, c, d);
+    }
+
+    private static void rotateParticipents() {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                for (int num : positions[i][j]) {
+                    participents.get(num).r = i;
+                    participents.get(num).c = j;
+                }
+            }
+        }
     }
 
     private static void rotateExit(int r, int c, int toR, int toC) {
