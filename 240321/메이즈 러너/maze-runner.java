@@ -101,12 +101,21 @@ public class Main {
                 positions[r][c + len - 1 - (i - r)] = tmpPosition;
                 if (tmpExit != null) rotateExit(i, c, r, c + len - 1 - (i - r));
             }
-
             len -= 2;
             r++;
             c++;
         }
+        rotateParticipents();
+    }
 
+    private static void rotateEliments(int a, int b, int c, int d) {
+        if (map[a][b] > 0) map[a][b]--;
+        map[c][d] = map[a][b];
+        positions[c][d] = positions[a][b];
+        rotateExit(a, b, c, d);
+    }
+
+    private static void rotateParticipents() {
         for (int i = 1; i <= n; i++) {
             for (int j = 1; j <= n; j++) {
                 for (int num : positions[i][j]) {
@@ -115,13 +124,6 @@ public class Main {
                 }
             }
         }
-    }
-
-    private static void rotateEliments(int a, int b, int c, int d) {
-        if (map[a][b] > 0) map[a][b]--;
-        map[c][d] = map[a][b];
-        positions[c][d] = positions[a][b];
-        rotateExit(a, b, c, d);
     }
 
     private static Node findStartPosition() {
