@@ -18,8 +18,8 @@ public class Main {
             path = new ArrayList<>();
             Queue<Node> q = new ArrayDeque<>();
             q.offer(this);
-            boolean[][][] visited = new boolean[n][m][101];
-            visited[x][y][0] = true;
+            boolean[][] visited = new boolean[n][m];
+            visited[x][y] = true;
 
             while (!q.isEmpty()) {
                 Node cur = q.poll();
@@ -32,11 +32,11 @@ public class Main {
                     else if (nx >= n) nx = 0;
                     if (ny < 0) ny = m - 1;
                     else if (ny >= m) ny = 0;
-                    if (cur.path.size() > 100 || visited[nx][ny][cur.path.size()] || map[nx][ny] <= 0) continue;
+                    if (visited[nx][ny] || map[nx][ny] <= 0) continue;
                     Node next = new Node(nx, ny);
                     next.path = new ArrayList<>(cur.path);
                     next.path.add(next);
-                    visited[nx][ny][cur.path.size()] = true;
+                    visited[nx][ny] = true;
                     q.offer(next);
                 }
             }
@@ -46,13 +46,13 @@ public class Main {
         public List<Node> potan(Node attactee) {
             List<Node> attactees = new ArrayList<>();
             for (int i = 0; i < 8; i++) {
-                int nx = x + del[i][0];
-                int ny = y + del[i][1];
+                int nx = attactee.x + del[i][0];
+                int ny = attactee.y + del[i][1];
                 if (nx < 0) nx = n - 1;
                 else if (nx >= n) nx = 0;
                 if (ny < 0) ny = m - 1;
                 else if (ny >= m) ny = 0;
-                if (map[nx][ny] <= 0) continue;
+                if ((nx == x && ny == y) || map[nx][ny] <= 0) continue;
                 attactees.add(new Node(nx, ny));
             }
             attactees.add(attactee);
@@ -84,17 +84,13 @@ public class Main {
         while (idx++ < k) {
             Node attactor = findAttactor();
             Node attactee = findAttactee();
-            map[attactor.x][attactor.y] += n + m;
 
             List<Node> attactees = attactor.laser(attactee);
             if (attactees.isEmpty()) attactees = attactor.potan(attactee);
-            attact(map[attactor.x][attactor.y], attactee, attactees);
-
+            map[attactor.x][attactor.y] += (n + m);
             times[attactor.x][attactor.y] = idx;
-            if (cnt <= 1) {
-                printRes();
-                return;
-            }
+            attact(map[attactor.x][attactor.y], attactees);
+            if (cnt <= 1) break;
 
             attactees.add(attactor);
             rest(attactees);
@@ -108,7 +104,7 @@ public class Main {
         int min = Integer.MAX_VALUE;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if (map[i][j] == 0) continue;
+                if (map[i][j] <= 0) continue;
                 if (attactorContidions(min, i, j, attactor)) {
                     min = map[i][j];
                     attactor.x = i;
@@ -131,7 +127,7 @@ public class Main {
         int max = -1;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if (map[i][j] == 0) continue;
+                if (map[i][j] <= 0) continue;
                 if (attacteeContidions(max, i, j, attactee)) {
                     max = map[i][j];
                     attactee.x = i;
@@ -149,28 +145,24 @@ public class Main {
                 || (max == map[x][y] && times[x][y] == times[attactee.x][attactee.y] && x + y == attactee.sum() && y < attactee.y);
     }
 
-    private static void attact(int attactValue, Node attactee, List<Node> attactees) {
+    private static void attact(int attactValue, List<Node> attactees) {
         int tmpCnt = 0;
         for (int i = 0; i < attactees.size() - 1; i++) {
             Node item = attactees.get(i);
-            map[item.x][item.y] -= attactValue / 2;
-            if (map[item.x][item.y] <= 0) {
-                map[item.x][item.y] = 0;
-                tmpCnt++;
-            }
+            map[item.x][item.y] -= (attactValue / 2);
+            if (map[item.x][item.y] <= 0) tmpCnt++;
         }
+
+        Node attactee = attactees.get(attactees.size() - 1);
         map[attactee.x][attactee.y] -= attactValue;
-        if (map[attactee.x][attactee.y] <= 0) {
-            map[attactee.x][attactee.y] = 0;
-            tmpCnt++;
-        }
+        if (map[attactee.x][attactee.y] <= 0) tmpCnt++;
         cnt -= tmpCnt;
     }
 
     private static void rest(List<Node> nodes) {
         for (int i = 0; i < n; i++)
             for (int j = 0; j < m; j++) {
-                if (map[i][j] == 0) continue;
+                if (map[i][j] <= 0) continue;
                 boolean flag = true;
                 for (Node node : nodes) {
                     if (node.x == i && node.y == j) {
