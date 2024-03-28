@@ -32,7 +32,7 @@ public class Main {
                     else if (nx >= n) nx = 0;
                     if (ny < 0) ny = m - 1;
                     else if (ny >= m) ny = 0;
-                    if (visited[nx][ny][cur.path.size()] || map[nx][ny] <= 0) continue;
+                    if (cur.path.size() > 100 || visited[nx][ny][cur.path.size()] || map[nx][ny] <= 0) continue;
                     Node next = new Node(nx, ny);
                     next.path = new ArrayList<>(cur.path);
                     next.path.add(next);
@@ -62,14 +62,6 @@ public class Main {
         public int sum() {
             return x + y;
         }
-
-        @Override
-        public String toString() {
-            return "Node{" +
-                    "x=" + x +
-                    ", y=" + y +
-                    '}';
-        }
     }
 
     public static void main(String[] args) throws Exception {
@@ -92,12 +84,13 @@ public class Main {
         while (idx++ < k) {
             Node attactor = findAttactor();
             Node attactee = findAttactee();
+            map[attactor.x][attactor.y] += n + m;
 
             List<Node> attactees = attactor.laser(attactee);
             if (attactees.isEmpty()) attactees = attactor.potan(attactee);
             attact(map[attactor.x][attactor.y], attactee, attactees);
-            times[attactor.x][attactor.y] = idx;
 
+            times[attactor.x][attactor.y] = idx;
             if (cnt <= 1) {
                 printRes();
                 return;
@@ -123,7 +116,6 @@ public class Main {
                 }
             }
         }
-        map[attactor.x][attactor.y] += n + m;
         return attactor;
     }
 
@@ -136,7 +128,7 @@ public class Main {
 
     private static Node findAttactee() {
         Node attactee = new Node(-1, -1);
-        int max = 0;
+        int max = -1;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
                 if (map[i][j] == 0) continue;
@@ -198,15 +190,5 @@ public class Main {
             }
         }
         System.out.println(res);
-    }
-
-    private static void printMap() {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                System.out.print(map[i][j] + " ");
-            }
-            System.out.println();
-        }
-        System.out.println("=============================");
     }
 }
